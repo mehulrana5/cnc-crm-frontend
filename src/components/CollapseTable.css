@@ -1,0 +1,63 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+th {
+    padding: 10px 10px 10px 0px;
+    background-color: #f4f4f4;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+}
+
+tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.data-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+    padding: 10px 10px 20px 0px;
+}
+
+tr:hover {
+    background-color: #F5F5F7;
+}
+
+/* Hover will only work on devices with mouse */
+@media (hover:hover) {
+    tr:hover {
+        background-color: #F5F5F7;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    thead {
+        display: none;
+    }
+    table,tbody,tr {
+        display: block;
+        text-align: right;
+    }
+    tr{
+        border-bottom: 3px solid #dddddd;
+    }
+    td{
+        display: flex;
+        text-align: right;
+        align-items: baseline;
+        justify-content: space-between;
+    }
+    td::before {
+        content: attr(data-label);
+        left: 15%;
+    }
+    .data-cell{
+        width: 34%;
+        padding: 5px;
+    }
+}
