@@ -3,6 +3,8 @@ import './ChefForm.css';
 import MultiRangeSlider from '../components/ui/MultiRangeSlider';
 import CollapseTable from '../components/CollapseTable';
 import LeadFormModal from '../components/LeadFormModal';
+import Pagination from '../components/ui/Pagination';
+import CustomInput from '../components/ui/CustomInput';
 
 function ChefForm() {
 
@@ -39,8 +41,6 @@ function ChefForm() {
         { label: 'Shared For', name: 'sharedFor' }
     ]
 
-    // --------------useState starts---------------------
-
     const [filters, setFilters] = useState(initialFilters);
     const [leadForm, setLeadForm] = useState(initialLeadForm);
     const [filterReset, setFilterReset] = useState(false)
@@ -52,11 +52,8 @@ function ChefForm() {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalItems, setTotalItems] = useState(0)
     const itemsPerPage = 5;
-    var totalPages = Math.ceil(totalItems / itemsPerPage)
+    const totalPages = Math.ceil(totalItems / itemsPerPage)
 
-    // --------------useState ends-----------------------
-
-    // --------------functions---------------------------
     const formatResponce = (backendResponse) => {
         const transformedData = backendResponse.data.leads.map((lead) => ({
             _id: lead._id,
@@ -111,9 +108,10 @@ function ChefForm() {
     };
 
     const validateSearch = () => {
-        var temp = {
-            // nameEmailContact : 'Invalid Name/Email/Contact'
-        };
+        var temp = {};
+        if (/\d/.test(filters?.state_1)) {
+            temp['state_1'] = 'Invalid State';
+        }
         setErrors(temp);
         return Object.keys(temp).length === 0;
     };
@@ -122,6 +120,9 @@ function ChefForm() {
         var temp = {}
         if (leadForm?.role.length === 0) {
             temp['role'] = 'Select atleast 1 role'
+        }
+        if (/\d/.test(leadForm?.state_2)) {
+            temp['state_2'] = 'Invalid State';
         }
         setErrors(temp)
         return Object.keys(temp).length === 0;
@@ -137,13 +138,12 @@ function ChefForm() {
         setClickedBtn(1)
         setFilterData()
         setSelectedDataPoint(null)
-        if (!validateSearch()) {
+        if (validateSearch() === false) {
             setLoading(false);
             return;
         }
         setErrors({});
         try {
-            console.log(`offset=${offset}`);
             const body = { "offset": offset, "limit": itemsPerPage, "filters": { "category": "chef", "createdBy": "abc@gmail.com" } }
             const response = await fetch("http://crm.cookandchef.in/api/v1/crm/getLeads", {
                 method: "POST",
@@ -160,7 +160,9 @@ function ChefForm() {
     };
 
     const handelAddLead = async () => {
-        if (!validateLeadForm()) return;
+        if (!validateLeadForm()) {
+            return;
+        }
         setErrors({});
         setLoading(true);
         setClickedBtn(2)
@@ -202,28 +204,6 @@ function ChefForm() {
         setClickedBtn(0)
     };
 
-    const handelInputType = (type) => {
-        switch (type) {
-            case 'Email':
-                return 'email'
-            case 'Contact Number':
-                return 'tel'
-            default:
-                return 'text'
-        }
-    }
-
-    const handelInputPattern = (type) => {
-        switch (type) {
-            case 'Email':
-                return '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$'
-            case 'Contact Number':
-                return '^\\+?[0-9]{10,15}$'
-            default:
-                return ''
-        }
-    }
-
     const handelRowClick = (idx) => {
         if (selectedDataPoint === idx) {
             setSelectedDataPoint(null);
@@ -233,46 +213,34 @@ function ChefForm() {
         }
     }
 
-    // --------------functions ends----------------------
-
     return (
         <>
             <div className="chef-form">
                 <div className="lang-and-profile-container">
-                    <div className="user-icon">
-                        <img src="https://via.placeholder.com/56" alt="User Icon" />
-                    </div>
+                    <div className="user-icon"><img src="https://via.placeholder.com/56" alt="User Icon" /></div>
                 </div>
                 <h1 className="title">Chef</h1>
                 <div className="filters-container">
                     <h2 className='sub-title-1'>Filters</h2>
                     <div className="filters">
                         {filterOptions.map((field, index) => (
-                            <div key={index} className="input-group">
-                                <label htmlFor={field.name}>{field.label}</label>
-                                <input
-                                    type={handelInputType(field.label)}
-                                    id={field.name}
-                                    name={field.name}
-                                    value={filters[field.name]}
-                                    onChange={(e) => handleInputChange(e, 'filters')}
-                                    pattern={handelInputPattern(field.label)}
-                                />
-                                <span className="error-container">{errors[field.name]}</span>
-                            </div>
+                            <CustomInput
+                                key={index}
+                                name={field.name}
+                                label={field.label}
+                                value={filters[field.name]}
+                                error={errors[field.name]}
+                                formType={"filters"}
+                                triggerFunction={handleInputChange}
+                            />
                         ))}
                         <div className="input-group">
                             <label htmlFor="salaryRange">Salary Range</label>
-                            <MultiRangeSlider
-                                min={0}
-                                max={100000}
+                            <MultiRangeSlider min={0} max={100000} step={100} reset={filterReset}
                                 onChange={({ min, max }) => {
                                     setFilters({ ...filters, salaryRange: [min, max] })
                                     setFilterReset(false)
-                                }}
-                                step={100}
-                                reset={filterReset}
-                            />
+                                }} />
                         </div>
                     </div>
                     <div className="button-group">
@@ -281,42 +249,33 @@ function ChefForm() {
                     </div>
                 </div>
                 {
-                    loading && clickedBtn === 1 ? <div className="filter-data-container">Loading....</div> :!loading && filterData ?
-                            <>
-                                <div className='select_page_container'>
-                                    <h3>Page Number</h3>
-                                    <select onChange={(e) => getLeads(parseInt(e.target.value, 10))} value={currentPage + 1} name="pageNumber" id="pageNumber">
-                                        {Array.from({ length: totalPages }, (_, idx) => (
-                                            <option key={idx + 1} value={idx + 1}>Page {idx + 1}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="filter-data-container">
-                                    <CollapseTable data={filterData} handelRowClick={handelRowClick} />
-                                    <LeadFormModal data={filterData[selectedDataPoint]} />
-                                </div>
-                            </>
-                            : <></>
+                    loading && clickedBtn === 1 ? <div className="filter-data-container">Loading....</div> : !loading && filterData ?
+                        <>
+                            <Pagination triggerFunction={getLeads} currentPage={currentPage} totalPages={totalPages} />
+                            <div className="filter-data-container">
+                                <CollapseTable data={filterData} handelRowClick={handelRowClick} />
+                                <LeadFormModal data={filterData[selectedDataPoint]} />
+                            </div>
+                        </>
+                        : <></>
                 }
                 <div className="lead-form-container">
                     <h2 className='sub-title-1'>Lead Form</h2>
                     {
-                        loading && clickedBtn === 2 ?
-                            <div className="filter-data-container">Loading....</div> :
+                        loading && clickedBtn === 2 ? <div className="filter-data-container">Loading....</div> :
                             <>
                                 <h3 className='sub-title-2'>Basic Details</h3>
                                 <div className="lead-form">
                                     {leadFormBasicDetails.map((field, index) => (
-                                        <div key={index} className="input-group">
-                                            <label htmlFor={field.name}>{field.label}</label>
-                                            <input
-                                                type={handelInputType(field.label)} id={field.name}
-                                                name={field.name}
-                                                value={leadForm[field.name]}
-                                                onChange={(e) => handleInputChange(e, 'leadForm')}
-                                            />
-                                            <span className="error-container">{errors[field.name]}</span>
-                                        </div>
+                                        <CustomInput
+                                            key={index}
+                                            name={field.name}
+                                            label={field.label}
+                                            value={leadForm[field.name]}
+                                            error={errors[field.name]}
+                                            formType={"LeadForm"}
+                                            triggerFunction={handleInputChange}
+                                        />
                                     ))}
                                     <div></div>
                                     <div className="input-group">
@@ -333,27 +292,28 @@ function ChefForm() {
                                         </div>
                                         <span className="error-container">{errors['role']}</span>
                                     </div>
-                                    <div></div>
-                                    <div></div>
+                                    <div></div><div></div>
                                 </div>
                                 <h3 className='sub-title-2'>Professional Details</h3>
                                 <div className='lead-form'>
-                                    <div className="input-group">
-                                        <label htmlFor="salary">Salary</label>
-                                        <input type="number" name="Salary" id="Salary" min={0} />
-                                    </div>
+                                    <CustomInput
+                                        name={'salary'}
+                                        label={'Salary'}
+                                        error={errors['Salary']}
+                                        formType={"LeadForm"}
+                                        triggerFunction={handleInputChange}
+                                        value={leadForm.salary}
+                                    />
                                     {leadFormProfessionalDetails.map((field, index) => (
-                                        <div key={index} className="input-group">
-                                            <label htmlFor={field.name}>{field.label}</label>
-                                            <input
-                                                type='text'
-                                                id={field.name}
-                                                name={field.name}
-                                                value={leadForm[field.name]}
-                                                onChange={(e) => handleInputChange(e, 'leadForm')}
-                                            />
-                                            <span className="error-container">{errors[field.name]}</span>
-                                        </div>
+                                        <CustomInput
+                                            key={index}
+                                            name={field.name}
+                                            label={field.label}
+                                            value={leadForm[field.name]}
+                                            error={errors[field.name]}
+                                            formType={"LeadForm"}
+                                            triggerFunction={handleInputChange}
+                                        />
                                     ))}
                                 </div>
                             </>

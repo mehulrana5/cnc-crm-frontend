@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import css from './RemarksModal.module.css'
+import CloseBtn from './ui/CloseBtn';
 
 function RemarksModal({ data, handelOpenRemarks }) {
     const [isLoading, setIsLoading] = useState(false)
@@ -50,10 +51,7 @@ function RemarksModal({ data, handelOpenRemarks }) {
         <div className={css.container_1}>
             <div className={css.container_5}>
                 <h2 className={css.title}>Remarks</h2>
-                <div className={css.close_modal} onClick={handelOpenRemarks}>
-                    <div className={`${css.close_modal_lines} ${css.close_modal_line_1}`}></div>
-                    <div className={`${css.close_modal_lines} ${css.close_modal_line_2}`}></div>
-                </div>
+                <CloseBtn triggerFunction={handelOpenRemarks}/>
             </div>
             <hr />
             <div className={css.container_4}>

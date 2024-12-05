@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import css from './LeadFormModal.module.css'
 import axios from 'axios';
 import RemarksModal from './RemarksModal.jsx'
+import CloseBtn from './ui/CloseBtn.jsx';
 
 function LeadFormModal(props) {
 
@@ -101,9 +102,7 @@ function LeadFormModal(props) {
       "contact": leadForm.contactNumber_2,
       "category": leadForm.category || "chef",
       "roles": leadForm.role,
-      cuisines: typeof leadForm?.cuisine_2 === 'string'
-        ? leadForm.cuisine_2.split(',')
-        : leadForm.cuisine_2,
+      "cuisines": typeof leadForm?.cuisine_2 === 'string'? leadForm.cuisine_2.split(','): leadForm.cuisine_2,
       "salary": +leadForm.salary,
       "city": leadForm.city_2,
       "state": leadForm.state_2,
@@ -157,10 +156,7 @@ function LeadFormModal(props) {
                 <div className={css.container_3}>
                   <div className={css.container_6}>
                     <h2 className={css.sub_title_1}>Lead Form</h2>
-                    <div className={css.close_modal} onClick={handleCloseModal}>
-                      <div className={`${css.close_modal_lines} ${css.close_modal_line_1}`}></div>
-                      <div className={`${css.close_modal_lines} ${css.close_modal_line_2}`}></div>
-                    </div>
+                    <CloseBtn triggerFunction={handleCloseModal}/>
                   </div>
                   <hr style={{ width: "100%" }} />
                   <div className={css.container_4}>
@@ -204,7 +200,7 @@ function LeadFormModal(props) {
                           name='check_box_1'
                           onChange={handleRoleChange}
                         />
-                        <label htmlFor="chefCheckBox">ChefRole</label>
+                        <label htmlFor="chefCheckBox">Chef</label>
                       </div>
                       <div className='custom-checkbox-container'>
                         <input
@@ -216,7 +212,7 @@ function LeadFormModal(props) {
                           name='check_box_2'
                           onChange={handleRoleChange}
                         />
-                        <label htmlFor="partyCookCheckBox">PartyCookRole</label>
+                        <label htmlFor="partyCookCheckBox">Party Cook</label>
                       </div>
                     </div>
                   </div>
@@ -235,22 +231,6 @@ function LeadFormModal(props) {
                       />
                     </div>
                   ))}
-                  {/* <div className="input-group">
-                    <label htmlFor={'remarks_2'}>Remarks</label>
-                    <div>
-                      <input
-                        type="text"
-                        name='remarks_2'
-                        id='remarks_2'
-                        defaultValue={leadForm?.remarks_2}
-                        onChange={handelOnChange}
-                      />
-                      {
-                        clickedBtn === 2 && isLoading ? <div>Loading....</div> :
-                          <button className={css.remark_save_btn} onClick={handelSave}>Save Remark</button>
-                      }
-                    </div>
-                  </div> */}
                   <div className="input-group">
                     <label htmlFor={'sharedFor'}>Shared For</label>
                     <input

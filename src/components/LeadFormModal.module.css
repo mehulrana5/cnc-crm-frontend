@@ -64,31 +64,6 @@
     justify-content: space-between;
 }
 
-.close_modal {
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;}
-
-.close_modal_lines {
-    width: 20px;
-    height: 1px;
-    border-radius: 20px;
-    border: #1b1b1b solid;
-    position: absolute;
-    background-color: #1b1b1b;
-}
-
-.close_modal_line_1 {
-    transform: rotate(45deg);
-}
-
-.close_modal_line_2 {
-    transform: rotate(-45deg);
-}
-
 .btn{
     color: white;
 }
